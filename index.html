@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Refer a Friend - Complete</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  /* ==========================================================================
+     Formation Design System tokens
+     Source: Figma "PRODUCT" collection, mode "FD Base Dark"; Typography collection
+     (Inter, FanDuel compliant); spacing / radius / border from PRODUCT foundations.
+     Every value below is a Formation token. Nothing is invented.
+     ========================================================================== */
+  :root {
+    /* Color: FD Base Dark */
+    --background-base: #0A0A0A;
+    --background-surface: #1C1D1D;
+    --background-layer: #2B2D2E;
+    --content-strong: #FFFFFF;
+    --content-default: #CED4DB;
+    --content-subtle: #969DA3;
+    --border-subtle: #4D5153;
+    --link-default-base: #64AEFF;
+    --brand-primary-default: #2B90FF;
+    --brand-gradient-start: #005FC8;
+    --brand-gradient-end: #003D81;
+    --positive-background-subtle: #002E11;
+    --positive-border-default: #005D23;
+    --positive-content-accent: #7FD9A1;
+
+    /* Space */
+    --space1: 4px; --space2: 8px; --space3: 12px; --space4: 16px;
+    --space5: 20px; --space6: 24px; --space8: 32px;
+
+    /* Shape */
+    --border-radius-default: 4px;
+    --border-radius-rounded: 8px;
+    --border-radius-circle: 9999px;
+    --border-width-default: 1px;
+
+    /* Type: primaryFont = Inter; weights 400 / 700; letterSpacing/010 = 0; line height 125% */
+    --font-primary: "Inter", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+
+    --ease-out: cubic-bezier(.2, .8, .2, 1);
+  }
+
+  /* Formation type ramp used on this screen
+     jumbo/xLarge   40 / 700 / 110%   $50
+     jumbo/medium   28 / 700 / 125%   name
+     heading/large  18 / 700 / 125%   nav title
+     heading/medium 16 / 700 / 125%   section headings
+     heading/small  14 / 700 / 125%   status pill
+     body/large     16 / 400 / 125%   back, username value
+     body/medium    14 / 400 / 125%   steps, body copy
+     body/small     12 / 400 / 125%   labels + meta */
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: #000; /* prototype backdrop, outside the device */
+    color: var(--content-strong);
+    font-family: var(--font-primary);
+    line-height: 1.25;
+    letter-spacing: 0;
+    -webkit-font-smoothing: antialiased;
+    display: grid;
+    place-items: center;
+    gap: 16px;
+    padding: 24px 0;
+  }
+
+  /* ---------- Device (prototype frame, not part of the design) ---------- */
+  .device {
+    position: relative;
+    width: 393px;
+    height: 852px;
+    border-radius: 52px;
+    background: var(--background-base);
+    overflow: hidden;
+    box-shadow: 0 0 0 10px #1c1c1e, 0 0 0 11px #3a3a3c, 0 40px 80px rgba(0,0,0,.6);
+  }
+  @media (max-width: 480px) {
+    body { padding: 0; display: block; }
+    .device { width: 100vw; height: 100dvh; border-radius: 0; box-shadow: none; }
+    .controls { display: none; }
+  }
+  .screen { position: absolute; inset: 0; overflow-y: auto; scrollbar-width: none; }
+  .screen::-webkit-scrollbar { display: none; }
+
+  .fx {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 20;
+  }
+
+  .statusbar { /* iOS system chrome, not Formation */
+    height: 50px; padding: 0 30px;
+    display: flex; align-items: center; justify-content: space-between;
+    font: 600 17px/1 -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+  .statusbar .icons { display: flex; gap: 6px; align-items: center; }
+
+  .peek {
+    height: 14px; margin: 0 var(--space3);
+    border-radius: var(--border-radius-rounded) var(--border-radius-rounded) 0 0;
+    background: linear-gradient(180deg, var(--brand-gradient-start), var(--brand-gradient-end));
+  }
+  .sheet {
+    background: var(--background-surface);
+    border-radius: var(--border-radius-rounded) var(--border-radius-rounded) 0 0;
+    min-height: calc(100% - 64px);
+  }
+  .navbar {
+    position: relative;
+    height: 52px;
+    display: flex; align-items: center; justify-content: center;
+    border-bottom: var(--border-width-default) solid var(--border-subtle);
+  }
+  .navbar .back { /* body/large */
+    position: absolute; left: var(--space3);
+    display: flex; align-items: center; gap: var(--space2);
+    font: 400 16px/1.25 var(--font-primary);
+    color: var(--content-strong); background: none; border: 0; cursor: pointer;
+  }
+  .navbar h1 { font-size: 18px; font-weight: 700; } /* heading/large */
+
+  .content {
+    background: var(--background-base);
+    padding: var(--space6) var(--space4) var(--space8);
+    isolation: isolate; /* keeps the bloom above the page background */
+  }
+
+  .name { font-size: 28px; font-weight: 700; } /* jumbo/medium */
+
+  /* Status pill: system/positive subtle background + default border + accent content. */
+  .status { /* heading/small */
+    display: inline-flex; align-items: center; gap: var(--space2);
+    margin-top: var(--space2);
+    padding: var(--space1) var(--space3) var(--space1) var(--space2);
+    border-radius: var(--border-radius-circle);
+    background: var(--positive-background-subtle);
+    box-shadow: inset 0 0 0 var(--border-width-default) var(--positive-border-default);
+    font-size: 14px; font-weight: 700;
+    color: var(--positive-content-accent);
+  }
+  .status-icon { width: 12px; height: 10px; flex: none; overflow: visible; }
+  .status-icon path {
+    fill: none; stroke: var(--positive-content-accent); stroke-width: 2;
+    stroke-linecap: round; stroke-linejoin: round;
+  }
+
+  .card {
+    position: relative;
+    background: var(--background-surface);
+    border-radius: var(--border-radius-rounded);
+    padding: var(--space4);
+    margin-top: var(--space4);
+  }
+
+  /* ---------- Reward card ---------- */
+  .reward { margin-top: var(--space6); padding: var(--space5) var(--space4); text-align: center; }
+  .reward .eyebrow { font-size: 12px; color: var(--content-subtle); } /* body/small */
+  .reward .amount { /* jumbo/xLarge */
+    font-size: 40px; font-weight: 700; line-height: 1.1;
+    margin-top: var(--space1);
+    font-variant-numeric: tabular-nums;
+  }
+  .reward .unit { font-size: 14px; color: var(--content-default); margin-top: var(--space1); } /* body/medium */
+
+  .ring {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    overflow: visible;
+    pointer-events: none;
+  }
+  .ring path { fill: none; vector-effect: non-scaling-stroke; }
+  /* Neutral hairline the comet draws on its single lap, then lets go of. */
+  .ring .trace {
+    stroke: var(--border-subtle);
+    stroke-width: var(--border-width-default);
+    stroke-dasharray: 1.02 1.02; /* slight overlap hides the start/end seam */
+    stroke-dashoffset: 1.02;
+  }
+  /* Coloured comet: stacked dashes, longest = thinnest, so both ends taper to a point. */
+  .ring .comet { filter: url(#cometGlow); opacity: 0; }
+  .ring .comet path { stroke-linecap: round; }
+  /* The ring is purely the celebration. After it closes, the hairline fades away and the
+     card rests borderless like the others. The transition only exists while landing, so a
+     replay resets instantly. Return visits and reduced motion start borderless. */
+  .reward.is-landed .trace { opacity: 0; transition: opacity 1s ease .6s; }
+  .reward.is-settled .trace { opacity: 0; }
+
+  /* Arrival: a soft light in brand/primary blooms from behind the card, then recedes. */
+  .reward::before {
+    content: ""; position: absolute; inset: calc(var(--space2) * -1); z-index: -1;
+    border-radius: var(--border-radius-rounded);
+    background: radial-gradient(60% 70% at 50% 50%, color-mix(in srgb, var(--brand-primary-default) 55%, transparent), transparent 70%);
+    filter: blur(18px);
+    opacity: 0;
+  }
+  .reward.is-arriving::before { animation: bloom 1.6s var(--ease-out) both; }
+  @keyframes bloom { 0% { opacity: 0; transform: scale(.92); } 30% { opacity: 1; } 100% { opacity: 0; transform: scale(1.06); } }
+
+  /* When the ring closes, $50 settles once. */
+  .reward .amount span { display: inline-block; }
+  .reward.is-landed .amount span { animation: settle .8s var(--ease-out) both; }
+  @keyframes settle { 0% { transform: scale(1); } 30% { transform: scale(1.04); } 100% { transform: scale(1); } }
+
+  /* ---------- Steps ---------- */
+  .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: var(--space3); }
+  .section-head h3 { font-size: 16px; font-weight: 700; } /* heading/medium */
+  .section-head .meta { font-size: 12px; color: var(--content-subtle); font-variant-numeric: tabular-nums; } /* body/small */
+  .steps { list-style: none; margin-top: var(--space3); }
+  .step { /* body/medium */
+    position: relative;
+    display: flex; align-items: center; gap: var(--space3);
+    min-height: 32px;
+    font-size: 14px; color: var(--content-default);
+  }
+  .step + .step { margin-top: var(--space4); }
+  .step:not(:last-child)::after { /* connector, part of the positive track */
+    content: ""; position: absolute;
+    left: 8.5px; top: 25px; width: var(--border-width-default); height: 31px;
+    background: var(--positive-border-default);
+  }
+  .check { flex: none; width: 18px; height: 18px; }
+  .divider { height: var(--border-width-default); background: var(--border-subtle); margin: var(--space6) 0; }
+
+  /* ---------- Info card ---------- */
+  .info .label { font-size: 12px; color: var(--content-subtle); } /* body/small */
+  .info .label + * { margin-top: var(--space1); }
+  .info h3 { font-size: 16px; font-weight: 700; } /* heading/medium */
+  .info h3 + * { margin-top: var(--space1); }
+  .info .muted { color: var(--content-default); font-size: 14px; } /* body/medium */
+  .info .block + .block { margin-top: var(--space5); }
+  .copy { /* body/large */
+    display: inline-flex; align-items: center; gap: var(--space2);
+    background: none; border: 0; cursor: pointer;
+    color: var(--content-strong); font: 400 16px/1.25 var(--font-primary);
+  }
+  .copy svg { stroke: var(--link-default-base); }
+  .copy .toast { color: var(--positive-content-accent); font-size: 12px; opacity: 0; transition: opacity .2s; }
+  .copy.copied .toast { opacity: 1; }
+  .info a { color: var(--link-default-base); text-decoration: none; }
+
+  /* ---------- Entrance ---------- */
+  /* Status reads first: pill fades in, then the check draws itself. */
+  .is-in .status { animation: fadeIn .35s ease .05s both; }
+  .is-in .status-icon path { stroke-dasharray: 1; animation: drawCheck .4s cubic-bezier(.65, 0, .35, 1) .2s both; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes drawCheck { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+
+  /* ---------- Prototype controls (outside the device) ---------- */
+  .controls { display: flex; gap: 8px; }
+  .controls button {
+    font: 600 14px/1 -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #fff; background: #1c1c1e; border: 1px solid #3a3a3c;
+    padding: 10px 16px; border-radius: 999px; cursor: pointer;
+  }
+  .controls button:hover { background: #2a2a2c; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .is-in .status, .is-in .status-icon path, .reward.is-landed .amount span, .reward::before { animation: none !important; }
+    .reward .comet { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="device">
+  <div class="screen" id="screen">
+    <div class="statusbar">
+      <span>9:41</span>
+      <span class="icons" aria-hidden="true">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="#fff"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="#fff"><path d="M8 2.6c2.3 0 4.4.9 5.9 2.4l1.1-1.1A9.9 9.9 0 0 0 8 1C5.3 1 2.8 2 1 3.9L2.1 5A8.3 8.3 0 0 1 8 2.6Zm0 3.1c1.4 0 2.7.6 3.7 1.5l1.1-1.1A6.8 6.8 0 0 0 8 4.1c-1.9 0-3.6.8-4.8 2l1.1 1.1c1-1 2.3-1.5 3.7-1.5Zm0 3.2c-.6 0-1.2.2-1.6.7L8 11.2l1.6-1.6c-.4-.5-1-.7-1.6-.7Z"/></svg>
+        <svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="#fff" opacity=".4"/><rect x="2" y="2" width="20" height="9" rx="2" fill="#fff"/><rect x="25" y="4.5" width="1.5" height="4" rx=".75" fill="#fff" opacity=".4"/></svg>
+      </span>
+    </div>
+    <div class="peek"></div>
+
+    <div class="sheet">
+      <div class="navbar">
+        <button class="back" type="button">
+          <svg width="11" height="19" viewBox="0 0 11 19" fill="none"><path d="M9.5 1.5 1.5 9.5l8 8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Back
+        </button>
+        <h1>Refer a Friend</h1>
+      </div>
+
+      <main class="content" id="content">
+        <h2 class="name">Firstname L.</h2>
+        <div class="status">
+          <svg class="status-icon" viewBox="4.3 5.6 9.5 7.1" aria-hidden="true">
+            <path d="M5.3 9.3 7.8 11.7 12.8 6.6" pathLength="1"/>
+          </svg>
+          Complete
+        </div>
+
+        <section class="card reward" id="reward" aria-label="Reward">
+          <svg class="ring" aria-hidden="true">
+            <defs>
+              <filter id="cometGlow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="1.6" result="b"/>
+                <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+            </defs>
+            <path class="trace" pathLength="1"/>
+            <g class="comet"></g>
+          </svg>
+          <p class="eyebrow">You earned</p>
+          <p class="amount"><span>$50</span></p>
+          <p class="unit">in Bonus Bets</p>
+        </section>
+
+        <section class="card">
+          <div class="section-head"><h3>Sportsbook</h3><span class="meta">3 of 3 complete</span></div>
+          <ol class="steps">
+            <li class="step"><svg class="check"><use href="#check"/></svg>Joined with your unique link</li>
+            <li class="step"><svg class="check"><use href="#check"/></svg>Settled a bet of $[value]</li>
+            <li class="step"><svg class="check"><use href="#check"/></svg>Bonus awarded</li>
+          </ol>
+          <div class="divider"></div>
+          <div class="section-head"><h3>Casino</h3><span class="meta">3 of 3 complete</span></div>
+          <ol class="steps">
+            <li class="step"><svg class="check"><use href="#check"/></svg>Joined with your unique link</li>
+            <li class="step"><svg class="check"><use href="#check"/></svg>Played through $10+</li>
+            <li class="step"><svg class="check"><use href="#check"/></svg>Bonus awarded</li>
+          </ol>
+        </section>
+
+        <section class="card info">
+          <div class="block">
+            <p class="label">Their username</p>
+            <button class="copy" type="button" id="copy">
+              username123
+              <svg width="16" height="20" viewBox="0 0 16 20" fill="none" stroke-width="1.5"><rect x="4.5" y="1" width="10.5" height="14" rx="1.5"/><path d="M11.5 18.8H2.5A1.5 1.5 0 0 1 1 17.3V5"/></svg>
+              <span class="toast" aria-live="polite">Copied</span>
+            </button>
+          </div>
+          <div class="block">
+            <h3>Need help?</h3>
+            <p class="muted">If you still have questions, our <a href="#">Support Team</a> is here to help.</p>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+  <canvas class="fx" id="fx" aria-hidden="true"></canvas>
+</div>
+
+<div class="controls">
+  <button id="replay" type="button">↻ First visit</button>
+  <button id="return" type="button">Return visit</button>
+</div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="check" viewBox="0 0 18 18">
+    <circle cx="9" cy="9" r="8.5" style="fill: var(--positive-background-subtle); stroke: var(--positive-border-default)" stroke-width="1"/>
+    <path d="M5.6 9.2 7.9 11.4 12.4 6.8" fill="none" style="stroke: var(--positive-content-accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+</svg>
+
+<script>
+(() => {
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const content = document.getElementById('content');
+  const reward = document.getElementById('reward');
+  const canvas = document.getElementById('fx');
+
+  /* ---------- Timeline (ms): the card is the event; one peak, then rest ---------- */
+  const T = {
+    arrive: 550,       // light blooms behind the card, just after the status check draws
+    ring: 1150,        // comet sets off from top-centre
+    lap: 1400,         // single eased lap; on close: $50 settles + edge sparkles
+  };
+  const SEEN_KEY = 'raf-celebrated:firstname-l'; // per referral, so each completion celebrates once
+
+  /* ---------- Ring geometry ---------- */
+  const comet = reward.querySelector('.ring .comet');
+  const trace = reward.querySelector('.ring .trace');
+
+  // Rounded-rect path starting at top-centre, clockwise.
+  function sizeRing() {
+    const w = reward.offsetWidth, h = reward.offsetHeight;
+    const i = 0.75, r = 8, x0 = i, y0 = i, x1 = w - i, y1 = h - i;
+    const d = `M ${w / 2} ${y0} H ${x1 - r} A ${r} ${r} 0 0 1 ${x1} ${y0 + r} V ${y1 - r}
+      A ${r} ${r} 0 0 1 ${x1 - r} ${y1} H ${x0 + r} A ${r} ${r} 0 0 1 ${x0} ${y1 - r}
+      V ${y0 + r} A ${r} ${r} 0 0 1 ${x0 + r} ${y0} Z`;
+    reward.querySelectorAll('.ring path').forEach(p => p.setAttribute('d', d));
+  }
+
+  // The comet is a stack of dashes centred on the same point: each layer is thicker and
+  // shorter than the last, so the stroke swells in the middle and tapers to fine tails.
+  const TAIL = [43, 144, 255], CORE = [100, 174, 255]; // brand/primary/default -> link/default/base
+  const LAYERS = 24;
+  const layers = Array.from({ length: LAYERS }, (_, i) => {
+    const t = i / (LAYERS - 1);                     // 0 = outer tail, 1 = core
+    const L = 0.26 * (1 - 0.86 * t);                // dash length (fraction of perimeter)
+    const rgb = TAIL.map((c, k) => Math.round(c + (CORE[k] - c) * t));
+    const p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.setAttribute('pathLength', '1');
+    p.setAttribute('stroke', `rgb(${rgb})`);
+    p.setAttribute('stroke-width', (0.35 + 2.3 * Math.pow(t, 1.3)).toFixed(2));
+    p.setAttribute('stroke-opacity', (0.12 + 0.5 * t * t).toFixed(2)); // layers stack, so keep each faint
+    p.setAttribute('stroke-dasharray', `${L} ${1 - L}`);
+    p.setAttribute('stroke-dashoffset', L / 2);     // centre the dash on the path start
+    comet.appendChild(p);
+    return { p, L };
+  });
+  new ResizeObserver(sizeRing).observe(reward);
+  sizeRing();
+
+  /* ---------- Ring: one lap that draws the hairline, then dissolves ---------- */
+  const LAP_EASE = 'cubic-bezier(.45, 0, .25, 1)'; // eased in/out so corners don't feel mechanical
+  let ringAnims = [];
+
+  function runRing() {
+    const lap = { duration: T.lap, easing: LAP_EASE, fill: 'forwards' };
+    ringAnims = [
+      // Trace and comet share duration + easing, so the hairline is drawn right behind the head.
+      trace.animate([{ strokeDashoffset: 1.02 }, { strokeDashoffset: 0 }], lap),
+      ...layers.map(({ p, L }) => p.animate(
+        [{ strokeDashoffset: L / 2 }, { strokeDashoffset: L / 2 - 1 }], lap)),
+      // Fade in on departure; dissolve as it decelerates into the close.
+      comet.animate(
+        [{ opacity: 0 }, { opacity: 1, offset: 0.15 }, { opacity: 1, offset: 0.7 }, { opacity: 0 }],
+        { duration: T.lap + 250, easing: 'linear', fill: 'forwards' }),
+      // The moment it closes, the hairline briefly brightens.
+      trace.animate(
+        [{ stroke: '#4D5153' }, { stroke: '#969DA3', offset: 0.25 }, { stroke: '#4D5153' }], /* border/subtle -> content/subtle */
+        { duration: 800, delay: T.lap - 120, easing: 'ease-out' }),
+    ];
+    ringAnims[0].finished.then(() => {
+      reward.classList.add('is-landed');
+      runSparkles();
+      successHaptic(); // same frame as the stars, so they stay in sync
+    }, () => {}); // rejection = cancelled by replay; ignore only that
+  }
+
+  /* ---------- Sparkles: a small, local burst off the card's edges as the ring closes ---------- */
+  const SPARKLE_COLORS = ['#FFFFFF', '#64AEFF', '#2B90FF', '#7FD9A1']; // content/strong, link, brand/primary, positive/accent
+  const rand = (a, b) => a + Math.random() * (b - a);
+  let fxRun = 0;
+
+  function star(ctx, r) { // four-point star with concave sides
+    ctx.beginPath();
+    ctx.moveTo(0, -r);
+    ctx.quadraticCurveTo(0, 0, r, 0);
+    ctx.quadraticCurveTo(0, 0, 0, r);
+    ctx.quadraticCurveTo(0, 0, -r, 0);
+    ctx.quadraticCurveTo(0, 0, 0, -r);
+    ctx.fill();
+  }
+
+  // One success haptic at the peak (ring closes + stars pop). Native spec:
+  // iOS UINotificationFeedbackGenerator .success, Android HapticFeedbackConstants.CONFIRM.
+  // Web stand-in: Android Chrome only, and only after the user has tapped the page.
+  function successHaptic() {
+    if (navigator.userActivation?.hasBeenActive) navigator.vibrate?.([12, 60, 18]);
+  }
+
+  function runSparkles() {
+    const run = ++fxRun;
+    const ctx = canvas.getContext('2d');
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    const W = canvas.clientWidth, H = canvas.clientHeight;
+    canvas.width = W * dpr; canvas.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const cr = canvas.getBoundingClientRect(), rr = reward.getBoundingClientRect();
+    const cx = rr.left - cr.left + rr.width / 2, cy = rr.top - cr.top + rr.height / 2;
+    const hw = rr.width / 2, hh = rr.height / 2;
+
+    const COUNT = 18;
+    const parts = Array.from({ length: COUNT }, (_, i) => {
+      const a = (i / COUNT) * Math.PI * 2 + rand(-0.12, 0.12);
+      const c = Math.cos(a), s = Math.sin(a);
+      const onSide = hw / Math.abs(c) < hh / Math.abs(s);  // which edge the ray from centre hits
+      const t = Math.min(hw / Math.abs(c), hh / Math.abs(s));
+      const [nx, ny] = onSide ? [Math.sign(c), 0] : [0, Math.sign(s)];
+      const speed = rand(28, 64);
+      return {
+        x: cx + c * t, y: cy + s * t,
+        vx: nx * speed + rand(-12, 12), vy: ny * speed + rand(-12, 12),
+        r: rand(3, 6.5), rot: rand(0, Math.PI / 2), vrot: rand(-2, 2),
+        life: rand(560, 860), delay: rand(0, 120),
+        color: SPARKLE_COLORS[Math.random() < 0.15 ? 3 : (Math.random() * 3) | 0],
+      };
+    });
+
+    const t0 = performance.now();
+    let last = t0;
+    const frame = now => {
+      if (run !== fxRun) return;
+      const dt = Math.min((now - last) / 1000, 1 / 30);
+      last = now;
+      ctx.clearRect(0, 0, W, H);
+      ctx.globalCompositeOperation = 'lighter';
+      let alive = 0;
+      for (const q of parts) {
+        const age = (now - t0 - q.delay) / q.life;
+        if (age < 0) { alive++; continue; }
+        if (age >= 1) continue;
+        alive++;
+        q.vx *= Math.pow(0.08, dt); q.vy *= Math.pow(0.08, dt);  // strong drag: pops out, then hangs
+        q.x += q.vx * dt; q.y += q.vy * dt; q.rot += q.vrot * dt;
+        const k = age < 0.3 ? age / 0.3 : 1 - (age - 0.3) / 0.7; // grow fast, fade slow
+        ctx.save();
+        ctx.globalAlpha = k;
+        ctx.translate(q.x, q.y);
+        ctx.rotate(q.rot);
+        ctx.fillStyle = q.color;
+        star(ctx, q.r * (0.4 + 0.6 * k));
+        ctx.restore();
+      }
+      ctx.globalCompositeOperation = 'source-over';
+      if (alive) requestAnimationFrame(frame);
+      else ctx.clearRect(0, 0, W, H);
+    };
+    requestAnimationFrame(frame);
+  }
+
+  /* ---------- Orchestration ---------- */
+  let timers = [];
+  function reset() {
+    timers.forEach(clearTimeout);
+    timers = [];
+    fxRun++;
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    ringAnims.forEach(a => a.cancel());
+    ringAnims = [];
+    content.classList.remove('is-in');
+    reward.classList.remove('is-arriving', 'is-landed', 'is-settled');
+    void content.offsetWidth; // restart CSS animations
+  }
+
+  // Return visits and reduced motion: the finished state, nothing moving.
+  function settle() {
+    reset();
+    reward.classList.add('is-settled');
+  }
+
+  function celebrate() {
+    reset();
+    if (reduceMotion) return settle();
+    content.classList.add('is-in');
+    const at = (ms, fn) => timers.push(setTimeout(fn, ms));
+    at(T.arrive, () => {
+      reward.classList.add('is-arriving');
+    });
+    at(T.ring, runRing);
+    try { localStorage.setItem(SEEN_KEY, '1'); } catch {}
+  }
+
+  function seen() {
+    try { return localStorage.getItem(SEEN_KEY) === '1'; } catch { return false; }
+  }
+
+  document.getElementById('replay').addEventListener('click', () => {
+    document.getElementById('screen').scrollTop = 0;
+    celebrate();
+  });
+  document.getElementById('return').addEventListener('click', settle);
+
+  const copyBtn = document.getElementById('copy');
+  copyBtn.addEventListener('click', async () => {
+    try { await navigator.clipboard.writeText('username123'); } catch {}
+    copyBtn.classList.add('copied');
+    setTimeout(() => copyBtn.classList.remove('copied'), 1400);
+  });
+
+  // Review params: ?celebrate always plays, ?view=return opens the finished state.
+  const params = new URLSearchParams(location.search);
+  const start = () => {
+    if (params.get('view') === 'return') return settle();
+    if (params.has('celebrate') || !seen()) return celebrate();
+    settle();
+  };
+  if (document.readyState === 'complete') start();
+  else addEventListener('load', start);
+})();
+</script>
+</body>
+</html>

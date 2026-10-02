@@ -81,4 +81,4 @@ All colours, type, spacing and radii come from the **Formation Design System**, 
 | File | Purpose |
 |---|---|
 | `index.html` | The prototype |
-| `compare.html` | Earlier side-by-side comparison of resting-border options. Out of date: the variants were removed once the borderless option was chosen |
+| `README.md` | This file |
